@@ -1,2 +1,3 @@
-# sql-modernization-foundations-with-azuresql-ai-and-fabric
-Modernize your SQL Server estate with AzureSQL, AI and Fabric
+# Modernize your SQL Server estate with AzureSQL, AI and Fabric
+
+This repository contains the materials, demos, hands-on labs, and deployment assets used in the Modernizing Your SQL Estate workshop. Learn how to modernize existing SQL Server workloads with Azure SQL, integrate operational data with Microsoft Fabric, and build AI-ready applications using modern data platform capabilities. Explore migration patterns, modernization strategies, analytics architectures, data integration scenarios, and practical examples that help you transform your SQL estate from on-premises databases to a cloud-connected, AI-powered data platform.
