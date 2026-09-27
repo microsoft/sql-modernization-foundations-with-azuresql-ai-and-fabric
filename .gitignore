@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+**/TestResults/
+**/node_modules/
+**/.vs/
+**/App_Data/checkpoints/
+**/appsettings.Local.json
+.env
+.env.*
+!.env.example

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>zava-banking-public-workshop-2026</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.79" />
+    <PackageReference Include="DotNetEnv" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.3" />
+    <PackageReference Include="Microsoft.Data.SqlClient.Extensions.Azure" Version="7.0.3" />
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
+    <EmbeddedResource Include="../../database/initialize.sql" Link="Database/initialize.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="../../.env.example" Link=".env.example" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

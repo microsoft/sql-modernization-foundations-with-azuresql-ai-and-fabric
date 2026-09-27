@@ -1,0 +1,23 @@
+<dialog id="chat-dialog" class="chat-dialog" aria-labelledby="chat-title">
+    <div class="chat-header"><div class="chat-avatar" aria-hidden="true">z.</div><div><h2 id="chat-title">Zava assistant</h2><span>AI / Product information</span></div><div class="chat-tools"><button id="new-chat" class="icon-button" title="New chat" aria-label="New chat"><i data-lucide="square-pen" aria-hidden="true"></i></button><button id="close-chat" class="icon-button" title="Close chat" aria-label="Close chat"><i data-lucide="x" aria-hidden="true"></i></button></div></div>
+    <div class="chat-privacy"><i data-lucide="shield-check" aria-hidden="true"></i><span>Workshop chat is stored. Use fictional details only.</span></div>
+    <div id="chat-scroll" class="chat-scroll">
+        <div id="chat-welcome" class="chat-welcome"><span class="eyebrow">A little clarity</span><h3>What's on your mind?</h3><p>I'm the Zava AI assistant.</p><div class="suggestions"><button data-suggestion="Tell me about Zava personal loans.">Personal loans <i data-lucide="arrow-up-right" aria-hidden="true"></i></button><button data-suggestion="What should I prepare for a mortgage conversation?">My next home <i data-lucide="arrow-up-right" aria-hidden="true"></i></button><button data-suggestion="Tell me about Zava savings options.">A savings goal <i data-lucide="arrow-up-right" aria-hidden="true"></i></button></div><p class="welcome-note">General, fictional product information. Not financial advice.</p></div>
+        <div id="chat-messages" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions"></div>
+        <div id="chat-progress" class="chat-progress" role="status" hidden><span class="progress-dot"></span>Preparing and saving your reply...</div>
+        <div id="chat-error" class="chat-error" role="alert" hidden><p id="chat-error-text"></p><button id="retry-message" class="text-action">Retry message <i data-lucide="rotate-cw" aria-hidden="true"></i></button></div>
+        <section id="followup-section" class="followup-section" aria-labelledby="followup-title" hidden>
+            <h3 id="followup-title">Let's leave a note.</h3><p>Your email and this full conversation will be included in the follow-up request.</p>
+            <form id="followup-form"><label for="followup-email">Email address</label><input id="followup-email" class="form-control" type="email" placeholder="alex@example.com" autocomplete="off" maxlength="254" required /><p class="form-note">Use a fictional address. This demo does not send email or connect a live agent.</p><div class="followup-actions"><button type="submit" class="btn btn-zava" id="submit-followup">Request follow-up <i data-lucide="arrow-right" aria-hidden="true"></i></button><button type="button" id="cancel-followup" class="text-action">Cancel</button></div></form>
+        </section>
+        <section id="followup-success" class="followup-success" role="status" hidden><i data-lucide="circle-check" aria-hidden="true"></i><h3>Request recorded.</h3><p>Your conversation is now closed. No email has been sent and no live agent is connected.</p><span class="reference-label">Your reference</span><code id="followup-reference"></code><button class="btn btn-outline-zava" id="success-new-chat">Start a new chat <i data-lucide="arrow-right" aria-hidden="true"></i></button></section>
+    </div>
+    <div class="chat-bottom">
+        <form id="message-form" class="message-form">
+            @Html.AntiForgeryToken()
+            <label class="visually-hidden" for="chat-input">Your message</label><textarea id="chat-input" rows="2" maxlength="1200" placeholder="What's your next chapter?" required></textarea><button id="send-message" class="send-button" type="submit" title="Send message" aria-label="Send message"><i data-lucide="arrow-up" aria-hidden="true"></i></button>
+        </form>
+        <div class="composer-meta"><span id="character-count">0 / 1,200</span><span>AI can make mistakes.</span></div>
+        <button id="open-followup" class="human-button" disabled><i data-lucide="user-round" aria-hidden="true"></i>Chat with a real person<i data-lucide="arrow-right" aria-hidden="true"></i></button>
+    </div>
+</dialog>

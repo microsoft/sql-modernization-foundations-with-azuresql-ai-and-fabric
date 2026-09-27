@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Read-only support console for Zava Lending chat escalations streamed from Azure Event Hubs." />
+    <meta name="theme-color" content="#214c40" />
+    <title>Zava Lending | Support escalations</title>
+    <link rel="stylesheet" href="/assets/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/site.css?v=2" />
+    <script src="/js/app.js?v=2" defer></script>
+</head>
+<body class="bg-body-tertiary">
+    <div class="demo-banner text-center">Fictional workshop data. This console is read-only: nothing you click changes a customer record.</div>
+
+    <header class="border-bottom bg-white">
+        <div class="container-fluid px-4 py-3 d-flex flex-wrap align-items-center gap-3">
+            <span class="wordmark">zava<span>.</span></span>
+            <div class="me-auto">
+                <h1 class="h5 mb-0">Support escalations</h1>
+                <p class="text-secondary small mb-0">Live chat hand-offs from the Zava Lending homepage</p>
+            </div>
+            <span class="badge rounded-pill text-bg-light border" id="count-badge">0 escalations</span>
+            <span class="status-pill" id="status-pill" data-state="connecting">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span id="status-text">Connecting…</span>
+            </span>
+        </div>
+        <div class="container-fluid px-4 pb-3 d-flex flex-wrap align-items-center gap-2">
+            <label for="search-input" class="form-label mb-0 fw-semibold flex-shrink-0">Search escalation:</label>
+            <input type="search" class="form-control" id="search-input"
+                   placeholder="Enter reference id or email"
+                   aria-label="Search by reference id or email"
+                   autocomplete="off" style="max-width: 28rem;" />
+        </div>
+    </header>
+
+    <main class="container-fluid px-4 py-4">
+        <div class="row g-4">
+            <section class="col-12 col-xl-5" aria-label="Escalation queue">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h2 class="h6 text-uppercase text-secondary mb-0">Queue</h2>
+                    <span class="small text-secondary" id="feed-note">Newest first</span>
+                </div>
+                <div id="no-match-state" class="card border-0 shadow-sm d-none">
+                    <div class="card-body text-center py-5">
+                        <p class="fw-semibold mb-1">No matching escalations</p>
+                        <p class="text-secondary small mb-0">Clear the search to see every hand-off again.</p>
+                    </div>
+                </div>
+                <div id="empty-state" class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <p class="fw-semibold mb-1">No escalations received yet</p>
+                        <p class="text-secondary small mb-0">New hand-offs appear here the moment they reach the event hub.</p>
+                    </div>
+                </div>
+                <ul class="list-unstyled d-grid gap-2 mb-0" id="escalation-list"></ul>
+            </section>
+
+            <section class="col-12 col-xl-7" aria-label="Escalation detail">
+                <h2 class="h6 text-uppercase text-secondary mb-2">Detail</h2>
+                <div class="card border-0 shadow-sm detail-card">
+                    <div class="card-body" id="detail-empty">
+                        <p class="text-secondary mb-0">Select an escalation to read the full conversation.</p>
+                    </div>
+                    <div class="card-body d-none" id="detail">
+                        <div class="d-flex flex-wrap align-items-start gap-3 mb-3">
+                            <div class="me-auto">
+                                <p class="h5 mb-1" id="detail-email"></p>
+                                <p class="text-secondary small mb-0">
+                                    Requested <span id="detail-created"></span> · <span id="detail-messages"></span>
+                                </p>
+                            </div>
+                            <button type="button" class="btn btn-zava" id="take-action">Take an action</button>
+                        </div>
+                        <dl class="row small reference-grid mb-3">
+                            <dt class="col-sm-3 text-secondary">Escalation</dt>
+                            <dd class="col-sm-9 font-monospace" id="detail-escalation-id"></dd>
+                            <dt class="col-sm-3 text-secondary">Session</dt>
+                            <dd class="col-sm-9 font-monospace mb-0" id="detail-session-id"></dd>
+                        </dl>
+                        <h3 class="h6 text-uppercase text-secondary">Conversation</h3>
+                        <div class="transcript" id="transcript"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div class="modal fade" id="action-modal" tabindex="-1" aria-labelledby="action-modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="action-modal-title">Take an action</h2>
+                    <button type="button" class="btn-close" data-close-modal aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Routing for <strong id="action-email"></strong>, escalation <span class="font-monospace small" id="action-reference"></span>.</p>
+                    <div class="d-grid gap-2 mb-3">
+                        <button type="button" class="btn btn-outline-secondary" disabled>Assign to me</button>
+                        <button type="button" class="btn btn-outline-secondary" disabled>Email the customer</button>
+                        <button type="button" class="btn btn-outline-secondary" disabled>Schedule a call back</button>
+                        <button type="button" class="btn btn-outline-secondary" disabled>Close as resolved</button>
+                    </div>
+                    <div class="alert alert-warning mb-0" role="alert">
+                        This console only reads the escalation stream. These controls are disabled: no customer, database or hub record is changed.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-zava" data-close-modal>Back to the queue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade d-none" id="action-backdrop"></div>
+</body>
+</html>

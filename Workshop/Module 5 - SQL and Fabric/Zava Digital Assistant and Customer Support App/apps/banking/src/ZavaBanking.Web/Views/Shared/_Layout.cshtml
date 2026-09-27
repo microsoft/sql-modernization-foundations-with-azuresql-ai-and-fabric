@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Meet Zava, a fictional bank for your next chapter. Explore lending, mortgages and savings in this workshop experience." />
+    <meta name="theme-color" content="#214c40" />
+    <title>Zava | Your next chapter</title>
+    <link rel="icon" type="image/png" href="~/assets/favicon.png" />
+    <link rel="stylesheet" href="~/assets/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="~/assets/lucide.min.js" defer></script>
+    <script src="~/js/chat.js" asp-append-version="true" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="demo-banner">A fictional bank. A real workshop. <span>Use made-up details only.</span></div>
+    <header class="site-header">
+        <nav class="container page-width navigation" aria-label="Main navigation">
+            <a href="/" class="wordmark" aria-label="Zava home">zava<span>.</span></a>
+            <div class="nav-links">
+                <a href="#lending">Lending</a>
+                <a href="#mortgages">Mortgages</a>
+                <a href="#savings">Savings</a>
+                <a href="#about">About Zava</a>
+            </div>
+            <button class="btn btn-outline-zava header-chat" data-open-chat><i data-lucide="messages-square" aria-hidden="true"></i><span>Let's talk</span></button>
+        </nav>
+    </header>
+    @RenderBody()
+    <footer class="site-footer" id="privacy">
+        <div class="container page-width footer-grid">
+            <div><a href="/" class="wordmark" aria-label="Zava home">zava<span>.</span></a><p>A little more possibility.</p></div>
+            <div class="footer-notice"><strong>Made for learning, not real banking.</strong><p>Zava is fictional. No accounts, applications, financial advice or live customer service are provided.</p><p>Chat messages are retained in the workshop SQL database. Follow-up requests include your email and full conversation, and may be streamed to Azure Event Hubs. Only use fictional data. Starting over does not delete stored history.</p></div>
+        </div>
+        <div class="container page-width footer-bottom"><span>Zava workshop / 2026</span><a href="#main">Back to top <i data-lucide="arrow-up" aria-hidden="true"></i></a></div>
+    </footer>
+    <button id="chat-launcher" class="chat-launcher" data-open-chat aria-label="Open Zava chat"><i data-lucide="messages-square" aria-hidden="true"></i><span>Ask Zava</span></button>
+    <partial name="_Chat" />
+</body>
+</html>
