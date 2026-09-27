@@ -33,7 +33,7 @@ By the end of the module, you will have:
 > This step takes about 10 minutes. Consider starting it **beforehand**, or skip directly to **Exercise 2: Migration with MI link**.  
 > Alternatively
 > - Watch the [YouTube video on database assessments](https://youtu.be/u1dJHCkp-mA?si=2_Q4VEzr3YUicFnZ).
-> - View a pre-generated sample report: [HTML report](https://improved-adventure-l62jq57.pages.github.io/SqlAssessment-sqlzavaonprem-202609241419.html) | [PDF report](./assets/SqlAssessment-sqlzavaonprem-202609241419.pdf).
+> - View a pre-generated sample report: [HTML report](https://htmlpreview.github.io/?https://github.com/microsoft/sql-modernization-foundations-with-azuresql-ai-and-fabric/blob/main/Workshop/Module%202%20-%20Migrate%20to%20Azure/assets/SqlAssessment-sqlzavaonprem-202609241419.html) | [PDF report](./assets/SqlAssessment-sqlzavaonprem-202609241419.pdf).
 
 > [!NOTE]
 > Exercise 1 is optional and is available only to attendees who have the Hybrid and Migration extension installed. If the component is missing and you cannot install it during the workshop, skip this exercise, continue directly to Exercise 2, and complete the assessment at home after installing the extension. The Managed Instance link wizard excercise does not require this extension.
