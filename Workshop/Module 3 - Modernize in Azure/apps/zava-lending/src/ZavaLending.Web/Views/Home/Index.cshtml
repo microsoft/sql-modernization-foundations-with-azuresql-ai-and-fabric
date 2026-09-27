@@ -1,0 +1,386 @@
+﻿@model ApplicationPageViewModel
+@{
+    ViewData["Title"] = "Zava Lending";
+    ViewData["Workspace"] = "Applications";
+}
+
+<div class="page-heading">
+    <div>
+        <h1>Zava Lending</h1>
+        @await Component.InvokeAsync(
+            "DatabaseCapabilityBadges",
+            new { workspace = DatabaseCapabilityWorkspace.Applications })
+    </div>
+</div>
+
+<section class="workspace-section search-section" aria-labelledby="search-heading">
+    <div class="section-heading">
+        <div>
+            <span class="section-number">1</span>
+            <h2 id="search-heading">Search applications</h2>
+        </div>
+    </div>
+
+    <form asp-action="Index" method="get" class="search-form">
+        <div>
+            <label asp-for="Filter.Customer" class="form-label">Customer name or email</label>
+            <input asp-for="Filter.Customer" class="form-control" placeholder="Name or email" />
+        </div>
+        <div>
+            <label asp-for="Filter.Status" class="form-label">Application status</label>
+            <select asp-for="Filter.Status" class="form-select">
+                <option value="">All statuses</option>
+                <option value="Pending">Pending</option>
+                <option value="Scoring">Scoring</option>
+                <option value="Decided">Decided</option>
+                <option value="Approved">Approved</option>
+                <option value="Declined">Declined</option>
+                <option value="Expired">Expired</option>
+            </select>
+        </div>
+        <div>
+            <label asp-for="Filter.LoanType" class="form-label">Loan type</label>
+            <select asp-for="Filter.LoanType" class="form-select">
+                <option value="">All loan types</option>
+                <option value="Auto">Auto</option>
+                <option value="Personal">Personal</option>
+                <option value="SmallBusiness">Small business</option>
+                <option value="HomeImprovement">Home improvement</option>
+            </select>
+        </div>
+        <div class="search-actions">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+        </div>
+    </form>
+</section>
+
+@if (Model.State == ApplicationPageState.ConfigurationMissing)
+{
+    <div class="alert alert-warning status-message" role="status">
+        Database access is not configured. Set the local Zava Lending connection and reload the page.
+    </div>
+}
+else if (Model.State == ApplicationPageState.SchemaUnavailable)
+{
+    <div class="alert alert-info status-message" role="status">
+        The application tables are not available yet. The database load may still be running.
+    </div>
+}
+else if (Model.State == ApplicationPageState.DatabaseUnavailable)
+{
+    <div class="alert alert-danger status-message" role="status">
+        The application database could not be reached. Try again after checking the connection.
+    </div>
+}
+
+<section class="workspace-section" aria-labelledby="results-heading">
+    <div class="section-heading">
+        <div>
+            <span class="section-number">2</span>
+            <h2 id="results-heading">Application results</h2>
+        </div>
+        @if (Model.Results.Count > 0)
+        {
+            <span class="result-count">Showing @Model.Results.Count</span>
+        }
+    </div>
+
+    <p class="text-muted small px-3 pt-3 mb-0">Select an Application ID to view application details.</p>
+
+    @if (Model.State == ApplicationPageState.NoApplications)
+    {
+        <div class="empty-state">The tables are ready, but no loan applications have been loaded.</div>
+    }
+    else if (Model.State == ApplicationPageState.NoSearchResults)
+    {
+        <div class="empty-state">No applications match the selected filters.</div>
+    }
+    else if (Model.Results.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table application-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Application ID</th>
+                        <th scope="col">Applicant</th>
+                        <th scope="col">Loan type</th>
+                        <th scope="col" class="text-end">Requested</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-end">Credit score</th>
+                        <th scope="col">Region</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var application in Model.Results)
+                    {
+                        <tr class="@(Model.SelectedApplicationId == application.ApplicationId ? "selected-row" : null)">
+                            <td>
+                                <a asp-action="Index"
+                                   asp-route-applicationId="@application.ApplicationId"
+                                   asp-route-filter.Customer="@Model.Filter.Customer"
+                                   asp-route-filter.Status="@Model.Filter.Status"
+                                   asp-route-filter.LoanType="@Model.Filter.LoanType"
+                                   class="application-link">
+                                    @application.ApplicationId
+                                </a>
+                            </td>
+                            <td>@application.ApplicantName</td>
+                            <td>@application.LoanType</td>
+                            <td class="text-end">@application.RequestedAmount.ToString("C0")</td>
+                            <td><span class="status-badge">@application.Status</span></td>
+                            <td class="text-end">@application.CreditScore</td>
+                            <td>@application.Region</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (Model.State == ApplicationPageState.Ready)
+    {
+        <div class="empty-state">Search results will appear here.</div>
+    }
+</section>
+
+<section class="workspace-section details-section" aria-labelledby="details-heading">
+    <div class="section-heading">
+        <div>
+            <span class="section-number">3</span>
+            <h2 id="details-heading">Selected application details</h2>
+        </div>
+    </div>
+
+    @if (Model.SelectedApplication is { } details)
+    {
+        <dl class="details-grid">
+            <div><dt>Application ID</dt><dd>@details.ApplicationId</dd></div>
+            <div><dt>Applicant</dt><dd>@details.ApplicantName</dd></div>
+            <div><dt>Email</dt><dd>@details.Email</dd></div>
+            <div><dt>Region</dt><dd>@details.Region</dd></div>
+            <div><dt>Annual income</dt><dd>@details.AnnualIncome.ToString("C0")</dd></div>
+            <div><dt>Employment status</dt><dd>@details.EmploymentStatus</dd></div>
+            <div><dt>Employment years</dt><dd>@(details.EmploymentYears?.ToString("0.0") ?? "Not provided")</dd></div>
+            <div><dt>Credit score</dt><dd>@details.CreditScore</dd></div>
+            <div><dt>Debt-to-income ratio</dt><dd>@(details.DebtToIncomeRatio?.ToString("P0") ?? "Not provided")</dd></div>
+            <div><dt>Loan type</dt><dd>@details.LoanType</dd></div>
+            <div><dt>Requested amount</dt><dd>@details.RequestedAmount.ToString("C0")</dd></div>
+            <div><dt>Term</dt><dd>@details.TermMonths months</dd></div>
+            <div class="details-wide"><dt>Purpose</dt><dd>@(details.LoanPurpose ?? "Not provided")</dd></div>
+            <div><dt>Channel</dt><dd>@details.Channel</dd></div>
+            <div><dt>Application date</dt><dd>@details.ApplicationDate.ToString("MMM d, yyyy")</dd></div>
+            <div><dt>Status</dt><dd><span class="status-badge">@details.Status</span></dd></div>
+        </dl>
+
+        <div class="decision-support-pane" aria-labelledby="decision-support-heading">
+            <div class="decision-support-heading">
+                <div>
+                    <p class="decision-support-eyebrow">Decision support</p>
+                    <h3 id="decision-support-heading">Underwriting Decision Support</h3>
+                </div>
+                <span class="capability-badge capability-badge-mode">
+                    @(Model.ScoringMode == DatabaseScoringMode.AiAssisted ? "AI-Assisted" : "Human Review")
+                </span>
+            </div>
+
+            @if (Model.DecisionSupportState == UnderwritingDecisionSupportState.SetupRequired)
+            {
+                <p class="decision-support-message">
+                    AI-assisted analysis is not available. Review the application details above, then make the final lending decision.
+                </p>
+                <div class="decision-support-form">
+                    <button type="button" class="btn btn-primary" disabled>Evaluate with AI</button>
+                </div>
+            }
+            else if (Model.DecisionSupportState == UnderwritingDecisionSupportState.Completed &&
+                     Model.UnderwritingAssessment is { } assessment)
+            {
+                var decisionClass = assessment.Decision switch
+                {
+                    "Approved" => "assessment-status-approved",
+                    "ConditionallyApproved" => "assessment-status-conditional",
+                    "ManualReview" => "assessment-status-review",
+                    "Denied" => "assessment-status-denied",
+                    _ => "assessment-status-neutral"
+                };
+                var decisionLabel = assessment.Decision switch
+                {
+                    "Approved" => "Approve",
+                    "ConditionallyApproved" => "Conditionally Approve",
+                    "ManualReview" => "Continue Manual Review",
+                    "Denied" => "Decline",
+                    _ => "Recommendation unavailable"
+                };
+
+                <div class="ai-recommendation" aria-labelledby="ai-recommendation-heading">
+                    <div class="decision-support-subheading">
+                        <h4 id="ai-recommendation-heading">AI Recommendation</h4>
+                        <p>AI analyzes and recommends. The loan officer makes the final lending decision.</p>
+                    </div>
+
+                    <div class="assessment-summary">
+                        <div>
+                            <span>Suggested Decision</span>
+                            <strong class="assessment-status @decisionClass">@decisionLabel</strong>
+                        </div>
+                        <div>
+                            <span>Suggested Risk Score</span>
+                            <strong>@assessment.RiskScore.ToString("0.00")</strong>
+                        </div>
+                        <div>
+                            <span>Suggested Risk Category</span>
+                            <strong>@assessment.RiskCategory Risk</strong>
+                        </div>
+                        <div>
+                            <span>Suggested Amount</span>
+                            <strong>@(assessment.RecommendedAmount?.ToString("C0") ?? "Not recommended")</strong>
+                        </div>
+                        <div>
+                            <span>Suggested Rate</span>
+                            <strong>@(assessment.RecommendedRate.HasValue ? $"{assessment.RecommendedRate.Value:0.00}%" : "Not recommended")</strong>
+                        </div>
+                        <div>
+                            <span>Processing time</span>
+                            <strong>@assessment.ProcessingTimeMs ms</strong>
+                        </div>
+                    </div>
+
+                    @if (assessment.HasSimilarLoanEvidence)
+                    {
+                        <div class="assessment-evidence-section">
+                            <h5>Historical Evidence</h5>
+                            <div class="assessment-evidence" aria-label="Historical loan evidence">
+                                @if (assessment.SimilarLoansAnalyzed.HasValue)
+                                {
+                                    <div><span>Similar loans analyzed</span><strong>@assessment.SimilarLoansAnalyzed.Value</strong></div>
+                                }
+                                @if (assessment.SimilarLoanApprovalRate.HasValue)
+                                {
+                                    <div><span>Similar-loan approval rate</span><strong>@assessment.SimilarLoanApprovalRate.Value.ToString("0.0")%</strong></div>
+                                }
+                                @if (assessment.SimilarLoanAvgDefaultRate.HasValue)
+                                {
+                                    <div><span>Similar-loan average default rate</span><strong>@assessment.SimilarLoanAvgDefaultRate.Value.ToString("P1")</strong></div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <div class="assessment-narrative">
+                        <h5>AI Assessment Narrative</h5>
+                        <p>@assessment.AssessmentNarrative</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @if (Model.DecisionSupportState == UnderwritingDecisionSupportState.Error)
+                {
+                    <div class="alert alert-warning decision-support-error" role="alert">
+                        @Model.DecisionSupportError
+                    </div>
+                }
+                else
+                {
+                    <p class="decision-support-message">
+                        Use AI to analyze the application and comparable historical loans. The final lending decision remains with the loan officer.
+                    </p>
+                }
+
+                <form asp-action="EvaluateApplication"
+                      method="post"
+                      class="decision-support-form"
+                      onsubmit="this.querySelector('button[type=submit]').disabled = true;">
+                    <input type="hidden" name="applicationId" value="@details.ApplicationId" />
+                    <input asp-for="Filter.Customer" type="hidden" />
+                    <input asp-for="Filter.Status" type="hidden" />
+                    <input asp-for="Filter.LoanType" type="hidden" />
+                    @if (Model.HumanDecision.HasValue)
+                    {
+                        <input type="hidden" name="humanDecision" value="@Model.HumanDecision.Value" />
+                    }
+                    <button type="submit" class="btn btn-primary">Evaluate with AI</button>
+                </form>
+            }
+
+            <div class="human-decision-panel" aria-labelledby="human-decision-heading">
+                <div class="decision-support-subheading">
+                    <h4 id="human-decision-heading">Human Decision</h4>
+                    <p>Review the application facts and any available AI recommendation, then make the final lending decision.</p>
+                </div>
+
+                @if (Model.HumanDecision.HasValue)
+                {
+                    <div class="human-decision-confirmation" role="status">
+                        <strong>
+                            Human Decision:
+                            @(Model.HumanDecision == HumanUnderwritingDecision.Approved
+                                ? "Approved"
+                                : "Declined")
+                        </strong>
+                        <span>
+                            Loan application status updated to
+                            @(Model.HumanDecision == HumanUnderwritingDecision.Approved
+                                ? "Approved"
+                                : "Declined").
+                        </span>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.HumanDecisionError))
+                {
+                    <div class="alert alert-warning human-decision-error" role="alert">
+                        @Model.HumanDecisionError
+                    </div>
+                }
+
+                <form asp-action="RecordHumanDecision"
+                      method="post"
+                      class="human-decision-form">
+                    <input type="hidden" name="ApplicationId" value="@details.ApplicationId" />
+                    <input asp-for="Filter.Customer" type="hidden" />
+                    <input asp-for="Filter.Status" type="hidden" />
+                    <input asp-for="Filter.LoanType" type="hidden" />
+
+                    @if (Model.UnderwritingAssessment is not null)
+                    {
+                        <input asp-for="UnderwritingAssessment.ApplicationId" type="hidden" />
+                        <input asp-for="UnderwritingAssessment.Decision" type="hidden" />
+                        <input asp-for="UnderwritingAssessment.RiskScore" type="hidden" />
+                        <input asp-for="UnderwritingAssessment.RiskCategory" type="hidden" />
+                        <input asp-for="UnderwritingAssessment.RecommendedAmount" type="hidden" />
+                        <input asp-for="UnderwritingAssessment.RecommendedRate" type="hidden" />
+                        <input asp-for="UnderwritingAssessment.AssessmentNarrative" type="hidden" />
+                        <input asp-for="UnderwritingAssessment.SimilarLoansAnalyzed" type="hidden" />
+                        <input asp-for="UnderwritingAssessment.SimilarLoanApprovalRate" type="hidden" />
+                        <input asp-for="UnderwritingAssessment.SimilarLoanAvgDefaultRate" type="hidden" />
+                        <input asp-for="UnderwritingAssessment.ProcessingTimeMs" type="hidden" />
+                    }
+
+                    <div class="human-decision-actions">
+                        <button type="submit"
+                                name="Decision"
+                                value="@HumanUnderwritingDecision.Approved"
+                                class="btn btn-success">
+                            Approve
+                        </button>
+                        <button type="submit"
+                                name="Decision"
+                                value="@HumanUnderwritingDecision.Declined"
+                                class="btn btn-outline-danger">
+                            Decline
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    else if (Model.SelectedApplicationId.HasValue && Model.State == ApplicationPageState.Ready)
+    {
+        <div class="empty-state">The selected application was not found.</div>
+    }
+    else
+    {
+        <div class="empty-state">No application selected. Select an Application ID from the results above.</div>
+    }
+</section>

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="apps/banking/src/ZavaBanking.Web/ZavaBanking.Web.csproj" />
+  <Project Path="apps/CustomerSupportApp/src/ZavaSupport.Web/ZavaSupport.Web.csproj" />
+  <Project Path="apps/CustomerSupportApp/tests/ZavaSupport.Web.Tests/ZavaSupport.Web.Tests.csproj" />
+</Solution>
