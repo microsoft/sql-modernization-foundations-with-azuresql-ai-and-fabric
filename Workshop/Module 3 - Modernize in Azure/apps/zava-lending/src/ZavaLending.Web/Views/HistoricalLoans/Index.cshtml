@@ -1,0 +1,270 @@
+﻿@model HistoricalLoanPageViewModel
+@{
+    ViewData["Title"] = "Historical Loans";
+    ViewData["Workspace"] = "HistoricalLoans";
+}
+
+<div class="page-heading">
+    <div>
+        <h1>Historical Loans</h1>
+        @await Component.InvokeAsync(
+            "DatabaseCapabilityBadges",
+            new { workspace = DatabaseCapabilityWorkspace.HistoricalLoans })
+    </div>
+</div>
+
+<section class="workspace-section search-section" aria-labelledby="historical-search-heading">
+    <div class="section-heading">
+        <div>
+            <span class="section-number">1</span>
+            <h2 id="historical-search-heading">Search historical loans</h2>
+        </div>
+    </div>
+
+    <form asp-action="Index" method="get" class="search-form historical-search-form">
+        <div class="historical-prompt-field">
+            <label asp-for="Filter.Prompt" class="form-label">Describe the loans to find</label>
+            <input asp-for="Filter.Prompt"
+                   class="form-control"
+                   maxlength="1000"
+                   placeholder="Borrowers under financial pressure" />
+        </div>
+        <div>
+            <label asp-for="Filter.LoanType" class="form-label">Loan type</label>
+            <select asp-for="Filter.LoanType" class="form-select">
+                <option value="">All loan types</option>
+                <option value="Auto">Auto</option>
+                <option value="Personal">Personal</option>
+                <option value="SmallBusiness">Small business</option>
+                <option value="HomeImprovement">Home improvement</option>
+            </select>
+        </div>
+        <div>
+            <label asp-for="Filter.LoanOutcome" class="form-label">Loan outcome</label>
+            <select asp-for="Filter.LoanOutcome" class="form-select">
+                <option value="">All outcomes</option>
+                <option value="Approved">Approved</option>
+                <option value="Denied">Denied</option>
+                <option value="Default">Default</option>
+                <option value="PaidInFull">Paid in full</option>
+                <option value="Active">Active</option>
+            </select>
+        </div>
+        <div>
+            <label asp-for="Filter.MinCreditScore" class="form-label">Minimum credit score</label>
+            <input asp-for="Filter.MinCreditScore"
+                   class="form-control"
+                   type="number"
+                   min="300"
+                   max="850"
+                   placeholder="Any score" />
+        </div>
+        <div>
+            <label asp-for="Filter.MaxCreditScore" class="form-label">Maximum credit score</label>
+            <input asp-for="Filter.MaxCreditScore"
+                   class="form-control"
+                   type="number"
+                   min="300"
+                   max="850"
+                   placeholder="Any score" />
+        </div>
+        <div>
+            <label asp-for="Filter.MinAmount" class="form-label">Minimum amount</label>
+            <input asp-for="Filter.MinAmount"
+                   class="form-control"
+                   type="number"
+                   min="0"
+                   step="0.01"
+                   placeholder="Any amount" />
+        </div>
+        <div>
+            <label asp-for="Filter.MaxAmount" class="form-label">Maximum amount</label>
+            <input asp-for="Filter.MaxAmount"
+                   class="form-control"
+                   type="number"
+                   min="0"
+                   step="0.01"
+                   placeholder="Any amount" />
+        </div>
+        <div>
+            <label asp-for="Filter.DateFrom" class="form-label">Application date from</label>
+            <input asp-for="Filter.DateFrom" class="form-control" type="date" />
+        </div>
+        <div>
+            <label asp-for="Filter.DateTo" class="form-label">Application date to</label>
+            <input asp-for="Filter.DateTo" class="form-control" type="date" />
+        </div>
+        <div>
+            <label asp-for="Filter.TopN" class="form-label">Results to show</label>
+            <input asp-for="Filter.TopN"
+                   class="form-control"
+                   type="number"
+                   min="1"
+                   max="50" />
+        </div>
+        <div class="search-actions">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+        </div>
+    </form>
+</section>
+
+@if (Model.State == HistoricalLoanPageState.ConfigurationMissing)
+{
+    <div class="alert alert-warning status-message" role="status">
+        Database access is not configured. Set the local Zava Lending connection and reload the page.
+    </div>
+}
+else if (Model.State == HistoricalLoanPageState.SchemaUnavailable)
+{
+    <div class="alert alert-info status-message" role="status">
+        The historical loan tables are not available yet. Complete the workshop data setup and try again.
+    </div>
+}
+else if (Model.State == HistoricalLoanPageState.SearchUnavailable)
+{
+    <div class="alert alert-info status-message" role="status">
+        Historical loan search is not available yet. Run the workshop search procedure setup.
+    </div>
+}
+else if (Model.State == HistoricalLoanPageState.InvalidSearch)
+{
+    <div class="alert alert-warning status-message" role="status">
+        Check the search ranges and try again.
+    </div>
+}
+else if (Model.State == HistoricalLoanPageState.DatabaseUnavailable)
+{
+    <div class="alert alert-danger status-message" role="status">
+        Historical loan search could not be completed. Try again after checking the database connection.
+    </div>
+}
+
+<section class="workspace-section" aria-labelledby="historical-results-heading">
+    <div class="section-heading">
+        <div>
+            <span class="section-number">2</span>
+            <h2 id="historical-results-heading">Historical loan results</h2>
+        </div>
+        @if (Model.Results.Count > 0)
+        {
+            <span class="result-count">Showing @Model.Results.Count matches</span>
+        }
+    </div>
+
+    <p class="text-muted small px-3 pt-3 mb-0">Select a Loan ID to view the historical loan details.</p>
+
+    @if (Model.State == HistoricalLoanPageState.NoHistoricalLoans)
+    {
+        <div class="empty-state">The tables are ready, but no historical loans have been loaded.</div>
+    }
+    else if (Model.State == HistoricalLoanPageState.SearchRequired)
+    {
+        <div class="empty-state">Enter a description and optional filters to find matching historical loans.</div>
+    }
+    else if (Model.State == HistoricalLoanPageState.NoSearchResults)
+    {
+        <div class="empty-state">No historical loans match the search and selected filters.</div>
+    }
+    else if (Model.Results.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table application-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Loan ID</th>
+                        <th scope="col">Loan type</th>
+                        <th scope="col" class="text-end">Requested</th>
+                        <th scope="col">Outcome</th>
+                        <th scope="col" class="text-end">Credit score</th>
+                        <th scope="col">Application date</th>
+                        <th scope="col">Search relevance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var loan in Model.Results)
+                    {
+                        <tr class="@(Model.SelectedLoanId == loan.LoanId ? "selected-row" : null)">
+                            <td>
+                                <a asp-action="Index"
+                                   asp-route-loanId="@loan.LoanId"
+                                   asp-route-filter.Prompt="@Model.Filter.Prompt"
+                                   asp-route-filter.LoanType="@Model.Filter.LoanType"
+                                   asp-route-filter.LoanOutcome="@Model.Filter.LoanOutcome"
+                                   asp-route-filter.MinCreditScore="@Model.Filter.MinCreditScore"
+                                   asp-route-filter.MaxCreditScore="@Model.Filter.MaxCreditScore"
+                                   asp-route-filter.MinAmount="@Model.Filter.MinAmount"
+                                   asp-route-filter.MaxAmount="@Model.Filter.MaxAmount"
+                                   asp-route-filter.DateFrom="@Model.Filter.DateFrom"
+                                   asp-route-filter.DateTo="@Model.Filter.DateTo"
+                                   asp-route-filter.TopN="@Model.Filter.TopN"
+                                   class="application-link">
+                                    @loan.LoanId
+                                </a>
+                            </td>
+                            <td>@loan.LoanType</td>
+                            <td class="text-end">@loan.RequestedAmount.ToString("C0")</td>
+                            <td><span class="status-badge">@loan.LoanOutcome</span></td>
+                            <td class="text-end">@loan.CreditScore</td>
+                            <td>@loan.ApplicationDate.ToString("MMM d, yyyy")</td>
+                            <td>
+                                <span class="relevance-badge">@loan.SemanticRelevance</span>
+                                @if (loan.SemanticDistance.HasValue)
+                                {
+                                    <span class="relevance-value">@loan.SemanticDistance.Value.ToString("0.000")</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+<section class="workspace-section details-section" aria-labelledby="historical-details-heading">
+    <div class="section-heading">
+        <div>
+            <span class="section-number">3</span>
+            <h2 id="historical-details-heading">Selected historical loan details</h2>
+        </div>
+    </div>
+
+    @if (Model.SelectedLoan is { } details)
+    {
+        <dl class="details-grid">
+            <div><dt>Loan ID</dt><dd>@details.LoanId</dd></div>
+            <div><dt>Loan type</dt><dd>@details.LoanType</dd></div>
+            <div><dt>Outcome</dt><dd><span class="status-badge">@details.LoanOutcome</span></dd></div>
+            <div><dt>Requested amount</dt><dd>@details.RequestedAmount.ToString("C0")</dd></div>
+            <div><dt>Approved amount</dt><dd>@(details.ApprovedAmount?.ToString("C0") ?? "Not approved")</dd></div>
+            <div><dt>Credit score</dt><dd>@details.CreditScore</dd></div>
+            <div><dt>Debt-to-income ratio</dt><dd>@(details.DebtToIncomeRatio?.ToString("P0") ?? "Not provided")</dd></div>
+            <div><dt>Default rate</dt><dd>@(details.DefaultRate?.ToString("P1") ?? "Not provided")</dd></div>
+            <div><dt>Application date</dt><dd>@details.ApplicationDate.ToString("MMM d, yyyy")</dd></div>
+            <div>
+                <dt>Search relevance</dt>
+                <dd>
+                    <span class="relevance-badge">@details.SemanticRelevance</span>
+                    @if (details.SemanticDistance.HasValue)
+                    {
+                        <span class="relevance-value">@details.SemanticDistance.Value.ToString("0.000")</span>
+                    }
+                </dd>
+            </div>
+            <div class="details-wide"><dt>Purpose</dt><dd>@(details.LoanPurpose ?? "Not provided")</dd></div>
+            <div class="details-wide details-narrative">
+                <dt>Narrative</dt>
+                <dd>@(string.IsNullOrWhiteSpace(details.LoanNarrative) ? "Not provided" : details.LoanNarrative)</dd>
+            </div>
+        </dl>
+    }
+    else if (Model.SelectedLoanId.HasValue && Model.State == HistoricalLoanPageState.Ready)
+    {
+        <div class="empty-state">The selected historical loan was not found.</div>
+    }
+    else
+    {
+        <div class="empty-state">No historical loan selected. Select a Loan ID from the results above.</div>
+    }
+</section>

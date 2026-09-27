@@ -1,0 +1,61 @@
+﻿@{
+    var workspace = ViewData["Workspace"] as string;
+    var workspaceClass = workspace == "HistoricalLoans"
+        ? "workspace-historical-loans"
+        : "workspace-applications";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Zava Lending</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ZavaLending.Web.styles.css" asp-append-version="true" />
+</head>
+<body class="@workspaceClass">
+    <header>
+        <nav class="app-header" aria-label="Primary">
+            <div class="container app-header-inner">
+                <a class="brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="brand-mark" aria-hidden="true">Z</span>
+                    <span>Zava Lending</span>
+                </a>
+                <div class="workspace-nav" aria-label="Workspaces">
+                    <a asp-area=""
+                       asp-controller="Home"
+                       asp-action="Index"
+                       class="workspace-nav-link @(workspace == "Applications" ? "active" : null)"
+                       aria-current="@(workspace == "Applications" ? "page" : null)">
+                        Applications
+                    </a>
+                    <a asp-area=""
+                       asp-controller="HistoricalLoans"
+                       asp-action="Index"
+                       class="workspace-nav-link @(workspace == "HistoricalLoans" ? "active" : null)"
+                       aria-current="@(workspace == "HistoricalLoans" ? "page" : null)">
+                        Historical Loans
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="app-footer">
+        <div class="container">
+            Zava Lending Operations
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

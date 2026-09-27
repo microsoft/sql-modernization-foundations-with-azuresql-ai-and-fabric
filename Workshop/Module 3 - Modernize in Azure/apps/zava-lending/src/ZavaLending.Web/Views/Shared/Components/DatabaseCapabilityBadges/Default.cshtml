@@ -1,0 +1,51 @@
+@model DatabaseCapabilityBadgesViewModel
+@{
+    var capability = Model.Workspace == DatabaseCapabilityWorkspace.Applications
+        ? Model.Capabilities.ApplicationsScoringMode
+        : Model.Capabilities.HistoricalLoanSearchMode;
+    var hasDatabaseProperties = Model.Capabilities.Platform is not null ||
+        Model.Capabilities.ServerName is not null ||
+        Model.Capabilities.DatabaseName is not null ||
+        Model.Capabilities.SqlGeneration is not null;
+    var hasBadges = hasDatabaseProperties ||
+        capability is not null;
+}
+
+@if (hasBadges)
+{
+    <div class="capability-badges"
+         aria-label="Capabilities detected from the connected database"
+         title="Detected automatically from the connected database">
+        @if (hasDatabaseProperties)
+        {
+            <div class="database-property-badges" aria-label="Connected database properties">
+                @if (Model.Capabilities.Platform is { } platform)
+                {
+                    <span class="capability-badge capability-badge-primary">@platform</span>
+                }
+                @if (Model.Capabilities.ServerName is { } serverName)
+                {
+                    <span class="capability-badge capability-badge-secondary">
+                        <span class="capability-badge-label">Server:</span> @serverName
+                    </span>
+                }
+                @if (Model.Capabilities.DatabaseName is { } databaseName)
+                {
+                    <span class="capability-badge capability-badge-secondary">
+                        <span class="capability-badge-label">Database:</span> @databaseName
+                    </span>
+                }
+                @if (Model.Capabilities.SqlGeneration is { } generation)
+                {
+                    <span class="capability-badge capability-badge-secondary">@generation</span>
+                }
+            </div>
+        }
+        @if (capability is not null)
+        {
+            <div class="application-capability-badges" aria-label="Application capability">
+                <span class="capability-badge capability-badge-mode">@capability</span>
+            </div>
+        }
+    </div>
+}
